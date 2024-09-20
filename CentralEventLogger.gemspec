@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/CentralizedLogging/version"
+require_relative "lib/central_event_logger/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "CentralizedLogging"
-  spec.version = CentralizedLogging::VERSION
+  spec.name = "CentralEventLogger"
+  spec.version = CentralEventLogger::VERSION
   spec.authors = ["DaveEshopGuide"]
   spec.email = ["dave@eshop-guide.de"]
 
