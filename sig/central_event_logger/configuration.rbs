@@ -1,0 +1,7 @@
+module CentralEventLogger
+  class Configuration
+    attr_accessor app_id: string
+    attr_accessor job_queue_name: string
+    attr_accessor reporting_database: string
+  end
+end

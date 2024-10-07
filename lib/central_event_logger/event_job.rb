@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module CentralEventLogger
+  # ActiveJob class for logging events
   class EventJob < ActiveJob::Base
     queue_as { CentralEventLogger.configuration.job_queue_name }
 
@@ -12,13 +15,13 @@ module CentralEventLogger
 
       # Create the event record
       Models::Event.create!(
-        app_id:      app.id,
+        app_id: app.id,
         customer_id: customer.id,
-        event_name:  event_data[:event_name],
-        event_type:  event_data[:event_type],
+        event_name: event_data[:event_name],
+        event_type: event_data[:event_type],
         event_value: event_data[:event_value],
-        payload:     event_data[:payload],
-        timestamp:   event_data[:timestamp]
+        payload: event_data[:payload],
+        timestamp: event_data[:timestamp]
       )
     rescue => e
       # Handle exceptions (e.g., log the error, retry logic)

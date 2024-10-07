@@ -1,0 +1,3 @@
+test:
+  service: Disk
+  root: C:/Workspace/centralized-logging/tmp/storage

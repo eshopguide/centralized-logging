@@ -1,4 +1,4 @@
-# config/initializers/central_event_logger.rb
+# frozen_string_literal: true
 
 CentralEventLogger.configure do |config|
   # Use a database URL from the environment variables

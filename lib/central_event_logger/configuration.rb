@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module CentralEventLogger
+  # Configuration class for CentralEventLogger
   class Configuration
     attr_accessor :reporting_database, :app_id, :job_queue_name
 
