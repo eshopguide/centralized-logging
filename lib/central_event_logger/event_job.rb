@@ -6,8 +6,6 @@ module CentralEventLogger
     queue_as { CentralEventLogger.configuration.job_queue_name }
 
     def perform(event_data)
-      # Re-establish database connection
-      ActiveRecord::Base.establish_connection(CentralEventLogger.configuration.reporting_database)
 
       # Create or find the customer and app records
       customer = Models::Customer.find_or_create_by(id: event_data[:customer_id])

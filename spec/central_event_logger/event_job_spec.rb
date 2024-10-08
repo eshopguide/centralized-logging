@@ -6,7 +6,7 @@ require "central_event_logger/event_job"
 RSpec.describe CentralEventLogger::EventJob, type: :job do
   let(:event_data) do
     {
-      app_id: "test_app_id",
+      app_id: 0,
       event_name: "test_event",
       event_type: "test_type",
       event_value: "test_value",

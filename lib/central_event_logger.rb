@@ -22,7 +22,7 @@ module CentralEventLogger
     ActiveRecord::Base.establish_connection(configuration.reporting_database)
   end
 
-  def self.log_event(event_name:, event_type:, event_value:, customer_id:, payload: {}, timestamp: Time.now, app_id: nil)
+  def self.log_event(event_name:, event_type:, event_value: nil, customer_id:, payload: {}, timestamp: Time.now, app_id: nil)
     # Validate required parameters
     raise ArgumentError, "event_name is required" unless event_name
     raise ArgumentError, "event_type is required" unless event_type

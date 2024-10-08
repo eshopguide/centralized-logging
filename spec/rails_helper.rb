@@ -22,6 +22,22 @@ require "simplecov"
 require "webmock/rspec"
 require "central_event_logger"
 require_relative "../config/initializers/central_event_logger"
+require "rake"
+require "dotenv"
+
+# prepare database
+
+Rails.application.load_tasks
+
+# Load custom tasks from spec/tasks
+Dir[Rails.root.join("spec/tasks/**/*.rake")].each { |f| load f }
+
+RSpec.configure do |config|
+  config.before(:suite) do
+    Rake::Task["db:create"].invoke unless ActiveRecord::Base.connection.table_exists?('schema_migrations')
+    Rake::Task["db:schema:load"].invoke
+  end
+end
 
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove these lines.
@@ -95,6 +111,7 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 
   config.include FactoryBot::Syntax::Methods
+  config.include ActiveJob::TestHelper, type: :job
 
-
+  Dotenv.load('.env.test')
 end

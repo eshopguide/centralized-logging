@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 module CentralEventLogger
   module Models
+    # Describes an event that occurred in an application
     class Event < ActiveRecord::Base
-      self.table_name = 'events'
+      self.table_name = "events"
 
       belongs_to :app
       belongs_to :customer
