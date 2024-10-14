@@ -13,8 +13,8 @@ module CentralEventLogger
 
       # Create the event record
       Models::Event.create!(
-        app: app,
-        customer: customer,
+        app_id: app.id,
+        customer_id: customer.id,
         event_name: event_data[:event_name],
         event_type: event_data[:event_type],
         event_value: event_data[:event_value],
