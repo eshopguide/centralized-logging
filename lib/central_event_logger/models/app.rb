@@ -1,6 +1,6 @@
 module CentralEventLogger
   module Models
-    class App < ActiveRecord::Base
+    class App < ReportingBase
       self.table_name = 'apps'
 
       has_many :events

@@ -8,13 +8,13 @@ module CentralEventLogger
     def perform(event_data)
 
       # Create or find the customer and app records
-      customer = Models::Customer.find_or_create_by(id: event_data[:customer_id])
-      app = Models::App.find_or_create_by(id: event_data[:app_id])
+      customer = Models::Customer.find_or_create_by(myshopify_domain: event_data[:customer_myshopify_domain])
+      app = Models::App.find_or_create_by(name: event_data[:app_name])
 
       # Create the event record
       Models::Event.create!(
-        app_id: app.id,
-        customer_id: customer.id,
+        app: app,
+        customer: customer,
         event_name: event_data[:event_name],
         event_type: event_data[:event_type],
         event_value: event_data[:event_value],

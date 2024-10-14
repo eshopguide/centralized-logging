@@ -1,6 +1,6 @@
 module CentralEventLogger
   module Models
-    class Customer < ActiveRecord::Base
+    class Customer < ReportingBase
       self.table_name = 'customers'
 
       has_many :events

@@ -3,7 +3,7 @@
 require_relative "lib/central_event_logger/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "CentralEventLogger"
+  spec.name = "central_event_logger"
   spec.version = CentralEventLogger::VERSION
   spec.authors = ["DaveEshopGuide"]
   spec.email = ["dave@eshop-guide.de"]

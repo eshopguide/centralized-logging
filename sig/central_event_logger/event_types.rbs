@@ -1,0 +1,12 @@
+module CentralEventLogger
+  module EventTypes
+    CHURN: string
+    CONVERSION: string
+    ENGAGEMENT: string
+    FEEDBACK: string
+    MARKETING: string
+    PERFORMANCE: string
+    SUPPORT: string
+    USER_ACQUISITION: string
+  end
+end

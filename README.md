@@ -1,37 +1,41 @@
-# CentralizedLogging
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/CentralizedLogging`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
-## Installation
-
-Install the gem and add to the application's Gemfile by executing:
-
-    $ bundle add CentralizedLogging
-
-If bundler is not being used to manage dependencies, install the gem by executing:
-
-    $ gem install CentralizedLogging
-
 ## Usage
 
-TODO: Write usage instructions here
+1. **Add the Gem to Your Gemfile**: Include the gem in your application's Gemfile and run `bundle install`.
 
-## Development
+   ```ruby
+   gem 'central_event_logger'
+   ```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+2. **Run the Generator**: Use the Rails generator to set up the reporting database configuration.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+   ```bash
+   rails generate central_event_logger:install
+   ```
 
-## Contributing
+   This will append the necessary configuration to your `config/database.yml` file.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/CentralizedLogging. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/CentralizedLogging/blob/master/CODE_OF_CONDUCT.md).
+3. **Set Environment Variables**: Ensure the following environment variables are set in your environment:
 
-## License
+   - `REPORTING_DATABASE_URL`: The connection string for your reporting database.
+   - `APP_NAME`: A unique identifier for your application.
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+   You can set these in a `.env` file for local development:
 
-## Code of Conduct
+   ```
+   REPORTING_DATABASE_URL=postgres://username:password@host:port/database_name
+   APP_NAME=YourAppName
+   ```
 
-Everyone interacting in the CentralizedLogging project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/CentralizedLogging/blob/master/CODE_OF_CONDUCT.md).
+4. **Verify Configuration**: Check that the `config/database.yml` file includes the reporting database configuration using the environment variable.
+
+5. **Use the Gem**: You can now use the `CentralEventLogger` to log events to your reporting database.
+
+   ```ruby
+   CentralEventLogger.log_event(
+     event_name: "user_signed_in",
+     event_type: "authentication",
+     customer_id: 123
+   )
+   ```
+
+By following these steps, you can integrate the `CentralEventLogger` gem into your Rails application and start logging events to a centralized database.

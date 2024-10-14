@@ -3,7 +3,7 @@
 module CentralEventLogger
   module Models
     # Describes an event that occurred in an application
-    class Event < ActiveRecord::Base
+    class Event < ReportingBase
       self.table_name = "events"
 
       belongs_to :app
