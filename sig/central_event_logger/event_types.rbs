@@ -6,6 +6,7 @@ module CentralEventLogger
     FEEDBACK: string
     MARKETING: string
     PERFORMANCE: string
+    SETTINGS_CHANGE: string
     SUPPORT: string
     USER_ACQUISITION: string
   end
