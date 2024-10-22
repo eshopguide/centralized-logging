@@ -4,6 +4,7 @@ require "net/http"
 require "json"
 
 module CentralEventLogger
+  # This class is responsible for making API requests to the central event logging service
   class ApiClient
     def initialize(base_url, api_key, api_secret)
       @base_url = base_url

@@ -16,9 +16,6 @@ module CentralEventLogger
   def self.configure
     self.configuration ||= Configuration.new
     yield(configuration)
-
-    # Establish connection to the reporting database
-    # ActiveRecord::Base.establish_connection(configuration.reporting_database)
   end
 
   def self.log_event(event_name:, event_type:, customer_myshopify_domain:, event_value: nil, payload: {}, timestamp: Time.now, app_name: nil)
