@@ -6,4 +6,7 @@ CentralEventLogger.configure do |config|
 
   # Optional: Set the job queue name
   config.job_queue_name = ENV.fetch("REPORTING_JOB_QUEUE", :default)
+  config.api_base_url = ENV["CENTRAL_EVENT_LOGGER_API_BASE_URL"]
+  config.api_key = ENV["CENTRAL_EVENT_LOGGER_API_KEY"]
+  config.api_secret = ENV["CENTRAL_EVENT_LOGGER_API_SECRET"]
 end
