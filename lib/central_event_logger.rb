@@ -2,6 +2,7 @@
 
 require "active_record"
 require "active_job"
+require_relative "central_event_logger/configuration"
 require "central_event_logger/railtie" if defined?(Rails)
 
 

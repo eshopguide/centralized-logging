@@ -5,26 +5,17 @@ module CentralEventLogger
   class EventJob < ActiveJob::Base
     queue_as { CentralEventLogger.configuration.job_queue_name }
 
+    rescue_from(StandardError) do |exception|
+      Rails.logger.error("EventJob failed: #{exception.message}")
+      raise exception
+    end
+
     def perform(event_data)
+      api_client = ApiClient.new(CentralEventLogger.configuration.api_base_url,
+                                 CentralEventLogger.configuration.api_key,
+                                 CentralEventLogger.configuration.api_secret)
 
-      # Create or find the customer and app records
-      customer = Models::Customer.find_or_create_by(myshopify_domain: event_data[:customer_myshopify_domain])
-      app = Models::App.find_or_create_by(name: event_data[:app_name])
-
-      # Create the event record
-      Models::Event.create!(
-        app_id: app.id,
-        customer_id: customer.id,
-        event_name: event_data[:event_name],
-        event_type: event_data[:event_type],
-        event_value: event_data[:event_value],
-        payload: event_data[:payload],
-        timestamp: event_data[:timestamp]
-      )
-    rescue => e
-      # Handle exceptions (e.g., log the error, retry logic)
-      Rails.logger.error("EventJob failed: #{e.message}")
-      raise e
+      api_client.create_event(event_data)
     end
   end
 end
