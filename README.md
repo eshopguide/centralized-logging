@@ -6,43 +6,23 @@
    gem 'central_event_logger', git: 'https://github.com/eshopguide/centralized-logging.git'
    ```
 
-2. **Set Up Reporting Database Configuration**: Run the Rake task to set up the reporting database configuration in your `config/database.yml` file.
+2. **Set Environment Variables**: Ensure the following environment variables are set in your environment:
 
-   ```bash
-   rails central_event_logger:setup_reporting_db
-   ```
-
-   This task will modify your `config/database.yml` file to include the reporting database configuration for all environments (development, test, and production). It will preserve existing configurations and add the reporting database as a secondary database.
-
-   After running this task, your `database.yml` will have a structure similar to this for each environment:
-
-   ```yaml
-   environment_name:
-     primary:
-       # Your existing database configuration
-     reporting:
-       <<: *default
-       url: <%= ENV['REPORTING_DATABASE_URL'] %>
-       database_tasks: false
-   ```
-
-   Make sure to review the changes in your `config/database.yml` file after running the task.
-
-3. **Set Environment Variables**: Ensure the following environment variables are set in your environment:
-
-   - `REPORTING_DATABASE_URL`: The connection string for your reporting database.
+   - `CENTRAL_EVENT_LOGGER_API_ENDPOINT`: The URL of the API endpoint for logging events.
+   - `CENTRAL_EVENT_LOGGER_API_KEY`: Your API key for authentication.
+   - `CENTRAL_EVENT_LOGGER_API_SECRET`: Your API secret for authentication.
    - `APP_NAME`: A unique identifier for your application.
 
    You can set these in a `.env` file for local development:
 
    ```
-   REPORTING_DATABASE_URL=postgres://username:password@host:port/database_name
+   CENTRAL_EVENT_LOGGER_API_ENDPOINT=https://api.example.com/log-events
+   CENTRAL_EVENT_LOGGER_API_KEY=your_api_key_here
+   CENTRAL_EVENT_LOGGER_API_SECRET=your_api_secret_here
    APP_NAME=YourAppName
    ```
 
-4. **Verify Configuration**: Check that the `config/database.yml` file includes the reporting database configuration using the environment variable.
-
-5. **Use the Gem**: You can now use the `CentralEventLogger` to log events to your reporting database. Here's an example of how to use the `log_event` method:
+3. **Use the Gem**: You can now use the `CentralEventLogger` to log events to the centralized logging service. Here's an example of how to use the `log_event` method:
 
    ```ruby
    CentralEventLogger.log_event(
@@ -65,4 +45,4 @@
 
    Make sure to adjust the parameters according to the event you're logging and the data available in your context.
 
-By following these steps, you can integrate the `CentralEventLogger` gem into your Rails application and start logging events to a centralized database.
+By following these steps, you can integrate the `CentralEventLogger` gem into your Rails application and start logging events to the centralized logging service via the API endpoint.
