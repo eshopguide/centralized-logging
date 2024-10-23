@@ -21,6 +21,7 @@ module CentralEventLogger
           event_name: attribute,
           event_type: CentralEventLogger::EventTypes::SETTINGS_CHANGE,
           customer_myshopify_domain: self&.shop&.shopify_domain,
+          customer_info: { name: self&.shop&.name, email: self&.shop&.email, owner: self&.shop&.shop_owner },
           event_value: changes.last,
           payload: { from: changes.first, to: changes.last },
           app_name: CentralEventLogger.configuration.app_name
