@@ -9,4 +9,12 @@ CentralEventLogger.configure do |config|
   config.api_base_url = ENV["CENTRAL_EVENT_LOGGER_API_BASE_URL"]
   config.api_key = ENV["CENTRAL_EVENT_LOGGER_API_KEY"]
   config.api_secret = ENV["CENTRAL_EVENT_LOGGER_API_SECRET"]
+
+  # if different in this app
+  # config.shop_attribute_mappings = {
+  #  domain: :myshopify_domain,
+  #  name: :name,
+  #  email: :email,
+  #  owner: :shop_owner
+  # }
 end

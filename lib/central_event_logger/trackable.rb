@@ -13,6 +13,7 @@ module CentralEventLogger
 
     def log_changes
       excluded_columns = %w[updated_at created_at id]
+      mappings = CentralEventLogger.configuration.shop_attribute_mappings
 
       saved_changes.each do |attribute, changes|
         next if excluded_columns.include?(attribute)
@@ -20,8 +21,12 @@ module CentralEventLogger
         CentralEventLogger.log_event(
           event_name: attribute,
           event_type: CentralEventLogger::EventTypes::SETTINGS_CHANGE,
-          customer_myshopify_domain: self&.shop&.shopify_domain,
-          customer_info: { name: self&.shop&.name, email: self&.shop&.email, owner: self&.shop&.shop_owner },
+          customer_myshopify_domain: self&.shop&.public_send(mappings[:domain]),
+          customer_info: {
+            name: self&.shop&.public_send(mappings[:name]),
+            email: self&.shop&.public_send(mappings[:email]),
+            owner: self&.shop&.public_send(mappings[:owner])
+          },
           event_value: changes.last,
           payload: { from: changes.first, to: changes.last },
           app_name: CentralEventLogger.configuration.app_name
