@@ -26,6 +26,7 @@ RSpec.describe CentralEventLogger do
         name: "Test User",
         shop_owner: "Test Owner"
       },
+      external_id: "12345",
       payload: { extra: "data" },
       timestamp: timestamp
     )
@@ -40,6 +41,7 @@ RSpec.describe CentralEventLogger do
         name: "Test User",
         shop_owner: "Test Owner"
       },
+      external_id: "12345",
       payload: { extra: "data" }
     )
   end

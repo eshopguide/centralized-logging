@@ -18,7 +18,7 @@ module CentralEventLogger
     yield(configuration)
   end
 
-  def self.log_event(event_name:, event_type:, customer_myshopify_domain:, customer_info: {}, event_value: nil, payload: {}, timestamp: Time.now, app_name: nil)
+  def self.log_event(event_name:, event_type:, customer_myshopify_domain:, customer_info: {}, event_value: nil, payload: {}, timestamp: Time.now, app_name: nil, external_id: nil)
     # Validate required parameters
     raise ArgumentError, "event_name is required" unless event_name
     raise ArgumentError, "event_type is required" unless event_type
@@ -37,7 +37,8 @@ module CentralEventLogger
       customer_myshopify_domain: ,
       customer_info: ,
       payload: ,
-      timestamp:
+      timestamp:,
+      external_id:
     )
   end
 end
