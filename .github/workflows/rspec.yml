@@ -67,22 +67,6 @@ jobs:
           gem install bundler
           bundle install --path vendor/bundle
 
-      - name: Set up test database
-        run: |
-          cp config/database.yml.github-actions config/database.yml
-          bundle exec rake db:create db:schema:load
-          bundle exec rake db:migrate RAILS_ENV=test
-          bundle exec rake db:fixtures:load
-        env:
-          RAILS_ENV: test
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          DB_NAME: centralized_logging_test
-          DB_USER: ${{ secrets.POSTGRES_USER }}
-          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          HOST_NAME: localhost
-          APP_HOME: https://test-host/
-
       - name: Get Yarn Cache
         id: yarn-cache
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
