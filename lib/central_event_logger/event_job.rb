@@ -11,11 +11,38 @@ module CentralEventLogger
     end
 
     def perform(event_data)
-      api_client = ApiClient.new(CentralEventLogger.configuration.api_base_url,
-                                 CentralEventLogger.configuration.api_key,
-                                 CentralEventLogger.configuration.api_secret)
+      adapters = Array(CentralEventLogger.configuration.adapters)
 
-      api_client.create_event(event_data)
+      adapters.each do |adapter|
+        case adapter
+        when :central_api
+          if CentralEventLogger.configuration.api_base_url
+            client = ApiClient.new(CentralEventLogger.configuration.api_base_url,
+                                   CentralEventLogger.configuration.api_key,
+                                   CentralEventLogger.configuration.api_secret)
+            safely_deliver("central_api") { client.create_event(event_data) }
+          end
+        when :posthog
+          if CentralEventLogger.configuration.posthog_project_api_key
+            require_relative "posthog_adapter"
+            client = PostHogAdapter.new(
+              CentralEventLogger.configuration.posthog_api_host,
+              CentralEventLogger.configuration.posthog_project_api_key
+            )
+            safely_deliver("posthog") { client.capture_event(event_data) }
+          end
+        else
+          Rails.logger.warn("Unknown CentralEventLogger adapter: #{adapter}")
+        end
+      end
+    end
+
+    private
+
+    def safely_deliver(name)
+      yield
+    rescue StandardError => e
+      Rails.logger.error("CentralEventLogger adapter #{name} failed: #{e.class}: #{e.message}")
     end
   end
 end

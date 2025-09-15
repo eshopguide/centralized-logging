@@ -1,8 +1,9 @@
 PATH
   remote: .
   specs:
-    central_event_logger (0.1.3)
+    central_event_logger (0.2)
       pg (~> 1.1)
+      posthog-ruby (>= 3.1)
       rails (~> 7.0)
       tzinfo-data (~> 1.2024.2)
 
@@ -156,6 +157,8 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.8-x64-mingw-ucrt)
+    posthog-ruby (3.2.0)
+      concurrent-ruby (~> 1)
     psych (5.1.2)
       stringio
     public_suffix (6.0.1)

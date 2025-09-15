@@ -8,6 +8,9 @@ RSpec.describe CentralEventLogger do
   before do
     CentralEventLogger.configure do |config|
       config.app_name = "test_app_name"
+      # Ensure at least one usable adapter so log_event enqueues
+      config.adapters = [:central_api]
+      allow(config).to receive(:api_base_url).and_return("https://api.example.com")
     end
   end
 

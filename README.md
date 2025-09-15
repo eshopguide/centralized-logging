@@ -8,19 +8,37 @@
 
 2. **Set Environment Variables**: Ensure the following environment variables are set in your environment:
 
-   - `CENTRAL_EVENT_LOGGER_API_ENDPOINT`: The URL of the API endpoint for logging events.
-   - `CENTRAL_EVENT_LOGGER_API_KEY`: Your API key for authentication.
-   - `CENTRAL_EVENT_LOGGER_API_SECRET`: Your API secret for authentication.
+   - `CENTRAL_EVENT_LOGGER_API_BASE_URL`: Base URL of the central reporting API (e.g. `https://api.example.com`).
+   - `CENTRAL_EVENT_LOGGER_API_KEY`: Your API key for the central reporting API.
+   - `CENTRAL_EVENT_LOGGER_API_SECRET`: Your API secret for the central reporting API.
    - `APP_NAME`: A unique identifier for your application.
+   - Optional adapter settings:
+     - `CENTRAL_EVENT_LOGGER_ADAPTERS`: Comma-separated list of adapters. Defaults to `central_api`. Example: `central_api,posthog`.
+     - `POSTHOG_PROJECT_API_KEY`: Your PostHog project API key (required when enabling `posthog`).
+     - `POSTHOG_API_HOST`: PostHog ingest host (defaults to `https://us.i.posthog.com`).
 
    You can set these in a `.env` file for local development:
 
    ```
-   CENTRAL_EVENT_LOGGER_API_ENDPOINT=https://api.example.com/log-events
+   CENTRAL_EVENT_LOGGER_API_BASE_URL=https://api.example.com
    CENTRAL_EVENT_LOGGER_API_KEY=your_api_key_here
    CENTRAL_EVENT_LOGGER_API_SECRET=your_api_secret_here
    APP_NAME=YourAppName
+   # Optional: enable PostHog
+   CENTRAL_EVENT_LOGGER_ADAPTERS=central_api,posthog
+   POSTHOG_PROJECT_API_KEY=phc_xxx
+   POSTHOG_API_HOST=https://eu.posthog.com
    ```
+
+### Adapters
+
+CentralEventLogger supports multiple delivery adapters. By default, events are sent to the central reporting API via the `central_api` adapter. You can opt-in to additional sinks (like PostHog) without changing your application code.
+
+- **Default behavior**: `CENTRAL_EVENT_LOGGER_ADAPTERS` defaults to `central_api`.
+- **Usability guard**: An event is only enqueued if at least one configured adapter is usable (e.g., central API has a base URL, or PostHog has a project API key).
+- **Enable PostHog**: set `CENTRAL_EVENT_LOGGER_ADAPTERS=central_api,posthog` and provide `POSTHOG_PROJECT_API_KEY` (and optionally `POSTHOG_API_HOST`).
+
+Internally, the PostHog adapter uses the official `posthog-ruby` client to `capture` events and `flush` them. See PostHog docs for details: [Ruby library](https://posthog.com/docs/libraries/ruby), [API overview](https://posthog.com/docs/api).
 
 3. **Configure Shop Attribute Mapping** (Optional): If your application uses different attribute names for shop-related data, you can configure the mappings in an initializer:
 
