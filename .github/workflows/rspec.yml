@@ -78,8 +78,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           DB_NAME: centralized_logging_test
-          DB_USER: ${{ secrets.POSTGRES_DB_USER }}
-          DB_PASSWORD: ${{ secrets.POSTGRES_DB_PASSWORD }}
+          DB_USER: ${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           HOST_NAME: localhost
           APP_HOME: https://test-host/
 
@@ -102,8 +102,8 @@ jobs:
       - name: Run RSpec tests
         env:
           DB_NAME: centralized_logging_test
-          DB_USER: postgres
-          DB_PASSWORD: postgres
+          DB_USER: ${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           HOST_NAME: localhost
           APP_HOME: https://test-host/
         run: |
