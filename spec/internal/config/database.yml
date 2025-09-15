@@ -1,8 +1,8 @@
 test:
   adapter: postgresql
   database: centralized_logging_test
-  username: <%= ENV['POSTGRES_USER'] %>
-  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  username: postgres
+  password: postgres
   host: localhost
   port: 5432
   pool: 5
