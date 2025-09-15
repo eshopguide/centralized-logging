@@ -2,10 +2,9 @@
 
 Bundler.require :default, :development
 
-# If you're using all parts of Rails:
-Combustion.initialize! :all
-# Or, load just what you need:
-# Combustion.initialize! :active_record, :action_controller
+# Initialize only the frameworks needed for this gem to avoid CI issues
+# with full-stack initialization on certain Rails/Ruby combos
+Combustion.initialize! :active_record, :active_job
 
 require "rspec/rails"
 
@@ -34,7 +33,7 @@ Dir[Rails.root.join("spec/tasks/**/*.rake")].each { |f| load f }
 
 RSpec.configure do |config|
   config.before(:suite) do
-    Rake::Task["db:create"].invoke unless ActiveRecord::Base.connection.table_exists?('schema_migrations')
+    Rake::Task["db:create"].invoke unless ActiveRecord::Base.connection.table_exists?("schema_migrations")
     Rake::Task["db:schema:load"].invoke
   end
 end
@@ -113,5 +112,5 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include ActiveJob::TestHelper, type: :job
 
-  Dotenv.load('.env.test')
+  Dotenv.load(".env.test")
 end
