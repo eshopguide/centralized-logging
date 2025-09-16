@@ -42,7 +42,7 @@ module CentralEventLogger
     def safely_deliver(name)
       yield
     rescue StandardError => e
-      Rails.logger.error("CentralEventLogger adapter #{name} failed: #{e.class}: #{e.message}")
+      Rails.error.report("CentralEventLogger adapter #{name} failed: #{e.class}: #{e.message}")
     end
   end
 end
