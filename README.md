@@ -15,7 +15,7 @@
    - Optional adapter settings:
      - `CENTRAL_EVENT_LOGGER_ADAPTERS`: Comma-separated list of adapters. Defaults to `central_api`. Example: `central_api,posthog`.
      - `POSTHOG_PROJECT_API_KEY`: Your PostHog project API key (required when enabling `posthog`).
-     - `POSTHOG_API_HOST`: PostHog ingest host (defaults to `https://us.i.posthog.com`).
+     - `POSTHOG_API_HOST`: PostHog ingest host (defaults to `https://eu.posthog.com`).
 
    You can set these in a `.env` file for local development:
 
