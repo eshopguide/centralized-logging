@@ -11,8 +11,8 @@ module CentralEventLogger
                                                 api_key: project_api_key,
                                                 host: api_host,
                                                 on_error: proc { |status, msg|
-                                                  if defined?(Rails) && Rails.respond_to?(:logger)
-                                                    Rails.logger.error("PostHog error #{status}: #{msg}")
+                                                  if defined?(Rails) && Rails.respond_to?(:error)
+                                                    Rails.error.report("PostHog error #{status}: #{msg}")
                                                   end
                                                 }
                                               })
