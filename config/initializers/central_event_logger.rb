@@ -10,6 +10,16 @@ CentralEventLogger.configure do |config|
   config.api_key = ENV["CENTRAL_EVENT_LOGGER_API_KEY"]
   config.api_secret = ENV["CENTRAL_EVENT_LOGGER_API_SECRET"]
 
+  # Adapters: set which sinks to send events to. Example: [:central_api, :posthog]
+  if ENV["CENTRAL_EVENT_LOGGER_ADAPTERS"]
+    # comma separated list like: central_api,posthog
+    config.adapters = ENV["CENTRAL_EVENT_LOGGER_ADAPTERS"].split(/\s*,\s*/).map { |s| s.strip.downcase.to_sym }
+  end
+
+  # PostHog settings (public/event endpoints). Host defaults to PostHog US ingest.
+  config.posthog_api_host = ENV["POSTHOG_API_HOST"] if ENV["POSTHOG_API_HOST"]
+  config.posthog_project_api_key = ENV["POSTHOG_PROJECT_API_KEY"] if ENV["POSTHOG_PROJECT_API_KEY"]
+
   # if different in this app
   # config.shop_attribute_mappings = {
   #  domain: :myshopify_domain,

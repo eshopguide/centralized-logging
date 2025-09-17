@@ -1,0 +1,16 @@
+development:
+  adapter: postgresql
+  host: localhost
+  encoding: unicode
+  database: central_event_logger_test
+  pool: 20
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
+test:
+  adapter: postgresql
+  host: localhost
+  encoding: unicode
+  database: central_event_logger_test
+  pool: 20
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>

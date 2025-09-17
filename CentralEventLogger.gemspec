@@ -32,11 +32,13 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "pg", "~> 1.1"
+  spec.add_dependency "posthog-ruby", ">= 3.1"
   spec.add_dependency "rails", "~> 7.0"
   spec.add_dependency "tzinfo-data", "~> 1.2024.2"
 
   spec.add_development_dependency "combustion", "~> 1.3"
   spec.add_development_dependency "database_cleaner", "~> 2.0"
+  spec.add_development_dependency "dotenv", "~> 2.8"
   spec.add_development_dependency "dotenv-rails", "~> 2.8"
   spec.add_development_dependency "factory_bot_rails", "~> 6.2"
   spec.add_development_dependency "ffaker", "~> 2.18"
@@ -46,7 +48,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop-rspec", "~> 2.15"
   spec.add_development_dependency "simplecov", "~> 0.21"
   spec.add_development_dependency "webmock", "~> 3.18"
-  spec.add_development_dependency "dotenv", "~> 2.8"
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
