@@ -17,12 +17,14 @@ module CentralEventLogger
   end
 
   def self.log_event(event_name:, event_type:, customer_myshopify_domain:, customer_info: {},
-                     event_value: nil, payload: {}, timestamp: Time.now, app_name: nil, external_id: nil)
+                     event_value: nil, payload: {}, timestamp: Time.now, app_name: nil, external_id: nil,
+                     adapters: nil)
     # Skip logging if nothing is configured
     return if configuration.nil?
 
     # Only enqueue if at least one configured adapter is usable
-    return unless has_usable_adapter?
+    effective_adapters = Array(adapters || configuration.adapters)
+    return unless has_usable_adapter?(effective_adapters)
 
     # Validate required parameters
     raise ArgumentError, "event_name is required" unless event_name
@@ -43,14 +45,15 @@ module CentralEventLogger
       customer_info: customer_info,
       payload: payload,
       timestamp: timestamp,
-      external_id: external_id
+      external_id: external_id,
+      adapters: effective_adapters
     }.compact)
   end
 
   # Helper method to check if at least one adapter is usable
-  def self.has_usable_adapter?
-    adapters = Array(configuration.adapters)
-    adapters.any? do |adapter|
+  def self.has_usable_adapter?(adapters = nil)
+    list = Array(adapters || configuration.adapters)
+    list.any? do |adapter|
       case adapter
       when :central_api
         !configuration.api_base_url.nil?

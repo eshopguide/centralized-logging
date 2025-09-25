@@ -11,7 +11,7 @@ module CentralEventLogger
     end
 
     def perform(event_data)
-      adapters = Array(CentralEventLogger.configuration.adapters)
+      adapters = Array(event_data[:adapters] || CentralEventLogger.configuration.adapters)
 
       adapters.each do |adapter|
         case adapter

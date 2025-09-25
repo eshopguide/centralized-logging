@@ -31,7 +31,8 @@ RSpec.describe CentralEventLogger do
       },
       external_id: "12345",
       payload: { extra: "data" },
-      timestamp: timestamp
+      timestamp: timestamp,
+      adapters: [:central_api]
     )
 
     CentralEventLogger.log_event(
@@ -97,6 +98,33 @@ RSpec.describe CentralEventLogger do
           }
         )
       end.not_to raise_error
+    end
+  end
+
+  context "with per-call adapters override" do
+    it "enqueues with provided adapters only" do
+      timestamp = Time.now
+      allow(Time).to receive(:now).and_return(timestamp)
+
+      expect(CentralEventLogger::EventJob).to receive(:perform_later).with(
+        hash_including(adapters: [:posthog])
+      )
+
+      # Configure a usable PostHog env
+      CentralEventLogger.configuration.posthog_project_api_key = "ph_test_key"
+
+      CentralEventLogger.log_event(
+        event_name: "test_event",
+        event_type: "test_type",
+        event_value: "test_value",
+        customer_myshopify_domain: "test.myshopify.com",
+        customer_info: {
+          email: "test@example.com",
+          name: "Test User",
+          shop_owner: "Test Owner"
+        },
+        adapters: [:posthog]
+      )
     end
   end
 end
