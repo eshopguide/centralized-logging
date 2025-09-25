@@ -38,7 +38,7 @@ module CentralEventLogger
       }
       if event_data[:timestamp]
         ts = event_data[:timestamp]
-        payload[:timestamp] = ts.is_a?(String) ? ts : ts.iso8601
+        payload[:timestamp] = ts.is_a?(Time) ? ts : Time.zone.parse(ts)
       end
 
       @client.capture(payload)
