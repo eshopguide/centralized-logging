@@ -40,6 +40,24 @@ CentralEventLogger supports multiple delivery adapters. By default, events are s
 
 Internally, the PostHog adapter uses the official `posthog-ruby` client to `capture` events and `flush` them. See PostHog docs for details: [Ruby library](https://posthog.com/docs/libraries/ruby), [API overview](https://posthog.com/docs/api).
 
+#### Per-call adapter selection
+
+You can override the configured adapters per `log_event` call using the `adapters:` parameter. This is useful when a specific event should only be sent to a subset of sinks.
+
+```ruby
+CentralEventLogger.log_event(
+  event_name: "order_processed",
+  event_type: "business_event",
+  customer_myshopify_domain: shop.shopify_domain,
+  payload: { order_id: order.id },
+  adapters: [:posthog] # sends only to PostHog for this call
+)
+```
+
+Notes:
+- The enqueue guard checks that at least one of the provided adapters is usable.
+- If `adapters:` is omitted, the configured adapters (e.g., `central_api`) are used.
+
 3. **Configure Shop Attribute Mapping** (Optional): If your application uses different attribute names for shop-related data, you can configure the mappings in an initializer:
 
    ```ruby
