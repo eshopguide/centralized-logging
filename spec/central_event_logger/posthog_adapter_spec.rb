@@ -39,7 +39,7 @@ RSpec.describe CentralEventLogger::PostHogAdapter do
             customer_info: { email: "user@example.com", name: "User" },
             payload: { extra: "data" }
           ),
-          timestamp: timestamp.iso8601
+          timestamp: timestamp
         )
       )
       expect(client).to receive(:flush)
