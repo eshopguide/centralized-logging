@@ -37,7 +37,7 @@ RSpec.describe CentralEventLogger::PostHogAdapter do
             event_value: "test_value",
             customer_myshopify_domain: "test-shop.myshopify.com",
             customer_info: { email: "user@example.com", name: "User" },
-            payload: { extra: "data" }
+            extra: "data"
           ),
           timestamp: timestamp
         )
