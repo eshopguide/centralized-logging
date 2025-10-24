@@ -28,7 +28,7 @@ module CentralEventLogger
         event_value: event_data[:event_value],
         customer_myshopify_domain: event_data[:customer_myshopify_domain],
         customer_info: event_data[:customer_info],
-        payload: event_data[:payload]
+        **event_data[:payload]
       }.compact
 
       payload = {
