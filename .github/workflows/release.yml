@@ -48,7 +48,7 @@ jobs:
           generate_release_notes: true
 
       - name: Build gem
-        run: gem build central_event_logger.gemspec
+        run: gem build CentralEventLogger.gemspec
 
       - name: Upload gem to release
         uses: softprops/action-gh-release@v1
