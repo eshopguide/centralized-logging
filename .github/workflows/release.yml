@@ -30,7 +30,7 @@ jobs:
 
       - name: Check if version matches
         run: |
-          gem_version=$(ruby -r ./lib/shopify_billing/version.rb -e "puts ShopifyBilling::VERSION")
+          gem_version=$(ruby -r ./lib/central_event_logger/version.rb -e "puts CentralEventLogger::VERSION")
           tag_version=${{ steps.tag.outputs.VERSION }}
           
           if [ "$gem_version" != "$tag_version" ]; then
@@ -48,10 +48,10 @@ jobs:
           generate_release_notes: true
 
       - name: Build gem
-        run: gem build shopify_billing.gemspec
+        run: gem build central_event_logger.gemspec
 
       - name: Upload gem to release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./shopify_billing-${{ steps.tag.outputs.VERSION }}.gem
+          files: ./central_event_logger-${{ steps.tag.outputs.VERSION }}.gem
           token: ${{ secrets.GITHUB_TOKEN }}
