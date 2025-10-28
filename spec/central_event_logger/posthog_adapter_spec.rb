@@ -36,7 +36,8 @@ RSpec.describe CentralEventLogger::PostHogAdapter do
             event_type: "test_type",
             event_value: "test_value",
             customer_myshopify_domain: "test-shop.myshopify.com",
-            customer_info: { email: "user@example.com", name: "User" },
+            customer_email: "user@example.com",
+            customer_name: "User",
             extra: "data"
           ),
           timestamp: timestamp
@@ -53,6 +54,18 @@ RSpec.describe CentralEventLogger::PostHogAdapter do
         expect(payload[:distinct_id]).to eq("ext-123")
         expect(payload).not_to have_key(:timestamp)
         expect(payload[:event]).to eq("test_event")
+        expect(payload[:properties]).to include(app_name: "TestApp")
+      end
+      expect(client).to receive(:flush)
+
+      adapter.capture_event(data)
+    end
+
+    it "handles nil customer_info without errors" do
+      data = event_data.merge(customer_info: nil)
+      expect(client).to receive(:capture) do |payload|
+        expect(payload[:properties]).not_to include(:customer_email)
+        expect(payload[:properties]).not_to include(:customer_name)
         expect(payload[:properties]).to include(app_name: "TestApp")
       end
       expect(client).to receive(:flush)
