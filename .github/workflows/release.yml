@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: false
+
+      - name: Update bundle platforms
+        run: |
+          bundle lock --add-platform x86_64-linux
+          bundle install
+
+      - name: Extract version from tag
+        id: tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Check if version matches
+        run: |
+          gem_version=$(ruby -r ./lib/shopify_billing/version.rb -e "puts ShopifyBilling::VERSION")
+          tag_version=${{ steps.tag.outputs.VERSION }}
+          
+          if [ "$gem_version" != "$tag_version" ]; then
+            echo "Error: Tag version ($tag_version) does not match gem version ($gem_version)"
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.tag.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Build gem
+        run: gem build shopify_billing.gemspec
+
+      - name: Upload gem to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./shopify_billing-${{ steps.tag.outputs.VERSION }}.gem
+          token: ${{ secrets.GITHUB_TOKEN }}
