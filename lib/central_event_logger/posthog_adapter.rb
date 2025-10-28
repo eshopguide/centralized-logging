@@ -22,13 +22,22 @@ module CentralEventLogger
     def capture_event(event_data)
       distinct_id = event_data[:customer_myshopify_domain] || event_data[:external_id] || event_data[:customer_info]&.dig(:id) || "unknown"
 
+      # Spread the customer_info hash into properties with "customer_" prefix
+      customer_info_prefixed = {}
+      if event_data[:customer_info].is_a?(Hash)
+        event_data[:customer_info].each do |k, v|
+          customer_info_prefixed[:"customer_#{k}"] = v
+        end
+      end
+
       properties = {
         app_name: event_data[:app_name],
         event_type: event_data[:event_type],
         event_value: event_data[:event_value],
         customer_myshopify_domain: event_data[:customer_myshopify_domain],
         customer_info: event_data[:customer_info],
-        **event_data[:payload]
+        **event_data[:payload],
+        **customer_info_prefixed
       }.compact
 
       payload = {
