@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    central_event_logger (0.2.1)
+    central_event_logger (0.2.2)
       pg (~> 1.1)
       posthog-ruby (>= 3.1)
       rails (~> 7.0)
