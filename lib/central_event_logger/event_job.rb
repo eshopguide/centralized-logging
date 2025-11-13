@@ -12,27 +12,12 @@ module CentralEventLogger
 
     def perform(event_data)
       adapters = Array(event_data[:adapters] || CentralEventLogger.configuration.adapters)
+      config = CentralEventLogger.configuration
 
-      adapters.each do |adapter|
-        case adapter
-        when :central_api
-          if CentralEventLogger.configuration.api_base_url
-            client = ApiClient.new(CentralEventLogger.configuration.api_base_url,
-                                   CentralEventLogger.configuration.api_key,
-                                   CentralEventLogger.configuration.api_secret)
-            safely_deliver("central_api") { client.create_event(event_data) }
-          end
-        when :posthog
-          if CentralEventLogger.configuration.posthog_project_api_key
-            require_relative "posthog_adapter"
-            client = PostHogAdapter.new(
-              CentralEventLogger.configuration.posthog_api_host,
-              CentralEventLogger.configuration.posthog_project_api_key
-            )
-            safely_deliver("posthog") { client.capture_event(event_data) }
-          end
-        else
-          Rails.logger.warn("Unknown CentralEventLogger adapter: #{adapter}")
+      adapters.each do |adapter_name|
+        safely_deliver(adapter_name) do
+          adapter = Adapters::AdapterFactory.build(adapter_name, config)
+          adapter.capture_event(event_data) if adapter
         end
       end
     end

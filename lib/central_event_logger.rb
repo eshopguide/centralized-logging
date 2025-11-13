@@ -3,6 +3,9 @@
 require "active_record"
 require "active_job"
 require_relative "central_event_logger/configuration"
+require_relative "central_event_logger/adapters/base_adapter"
+require_relative "central_event_logger/adapters/adapter_registry"
+require_relative "central_event_logger/adapters/adapter_factory"
 require "central_event_logger/railtie" if defined?(Rails)
 
 # CentralEventLogger is a library for logging events to a central database.
@@ -53,15 +56,6 @@ module CentralEventLogger
   # Helper method to check if at least one adapter is usable
   def self.has_usable_adapter?(adapters = nil)
     list = Array(adapters || configuration.adapters)
-    list.any? do |adapter|
-      case adapter
-      when :central_api
-        !configuration.api_base_url.nil?
-      when :posthog
-        !configuration.posthog_project_api_key.nil?
-      else
-        false
-      end
-    end
+    list.any? { |adapter| Adapters::AdapterRegistry.available?(adapter, configuration) }
   end
 end

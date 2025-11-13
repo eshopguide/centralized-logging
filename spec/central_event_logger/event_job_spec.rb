@@ -3,6 +3,7 @@
 require "rails_helper"
 require "central_event_logger/event_job"
 require "central_event_logger/api_client"
+require "central_event_logger/adapters/adapter_factory"
 
 RSpec.describe CentralEventLogger::EventJob, type: :job do
   let(:event_data) do
@@ -20,40 +21,88 @@ RSpec.describe CentralEventLogger::EventJob, type: :job do
   let(:configuration) do
     instance_double(CentralEventLogger::Configuration, job_queue_name: "test_queue", adapters: [:central_api])
   end
-  let(:api_client) { instance_double(CentralEventLogger::ApiClient) }
+  let(:adapter) { instance_double(CentralEventLogger::ApiClient, capture_event: { "status" => "success" }) }
   let(:logger) { instance_double("Logger", error: nil) }
   let(:error_reporter) { instance_double("ActiveSupport::ErrorReporter", report: nil) }
 
   before do
     allow(CentralEventLogger).to receive(:configuration).and_return(configuration)
-    allow(CentralEventLogger::ApiClient).to receive(:new).and_return(api_client)
     allow(Rails).to receive(:logger).and_return(logger)
     allow(Rails).to receive(:error).and_return(error_reporter)
-
-    allow(configuration).to receive(:api_base_url).and_return("https://api.example.com")
-    allow(configuration).to receive(:api_key).and_return("test_api_key")
-    allow(configuration).to receive(:api_secret).and_return("test_api_secret")
   end
 
-  it "sends event data to the central API via central_api adapter" do
-    expect(CentralEventLogger::ApiClient).to receive(:new).with(
-      "https://api.example.com",
-      "test_api_key",
-      "test_api_secret"
-    ).and_return(api_client)
-    expect(api_client).to receive(:create_event).with(event_data).and_return({ "status" => "success" })
+  describe "#perform" do
+    it "uses AdapterFactory to build and execute adapters" do
+      expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+        .with(:central_api, configuration)
+        .and_return(adapter)
+      expect(adapter).to receive(:capture_event).with(event_data)
 
-    perform_enqueued_jobs { CentralEventLogger::EventJob.perform_later(event_data) }
-  end
-
-  context "when central_api request fails" do
-    before do
-      allow(api_client).to receive(:create_event).and_raise(RuntimeError, "API request failed")
+      CentralEventLogger::EventJob.perform_now(event_data)
     end
 
-    it "does not raise due to internal rescue and reports error" do
-      expect(error_reporter).to receive(:report).with(/CentralEventLogger adapter central_api failed:/)
+    it "handles multiple adapters" do
+      allow(configuration).to receive(:adapters).and_return([:central_api, :posthog])
+      adapter1 = instance_double(CentralEventLogger::ApiClient, capture_event: true)
+      adapter2 = instance_double(CentralEventLogger::Adapters::PostHogAdapter, capture_event: true)
+
+      expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+        .with(:central_api, configuration)
+        .and_return(adapter1)
+      expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+        .with(:posthog, configuration)
+        .and_return(adapter2)
+
+      expect(adapter1).to receive(:capture_event).with(event_data)
+      expect(adapter2).to receive(:capture_event).with(event_data)
+
       CentralEventLogger::EventJob.perform_now(event_data)
+    end
+
+    it "skips adapters that return nil from factory" do
+      allow(configuration).to receive(:adapters).and_return([:central_api, :unknown])
+
+      expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+        .with(:central_api, configuration)
+        .and_return(adapter)
+      expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+        .with(:unknown, configuration)
+        .and_return(nil)
+
+      expect(adapter).to receive(:capture_event).with(event_data)
+
+      CentralEventLogger::EventJob.perform_now(event_data)
+    end
+
+    context "when adapter request fails" do
+      before do
+        allow(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+          .with(:central_api, configuration)
+          .and_return(adapter)
+        allow(adapter).to receive(:capture_event).and_raise(RuntimeError, "API request failed")
+      end
+
+      it "does not raise due to internal rescue and reports error" do
+        expect(error_reporter).to receive(:report).with(/CentralEventLogger adapter central_api failed:/)
+        CentralEventLogger::EventJob.perform_now(event_data)
+      end
+    end
+
+    context "with explicit adapters in event_data" do
+      let(:event_data_with_adapters) do
+        event_data.merge(adapters: [:posthog])
+      end
+
+      it "uses adapters from event_data instead of configuration" do
+        adapter2 = instance_double(CentralEventLogger::Adapters::PostHogAdapter, capture_event: true)
+
+        expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+          .with(:posthog, configuration)
+          .and_return(adapter2)
+        expect(adapter2).to receive(:capture_event).with(event_data_with_adapters)
+
+        CentralEventLogger::EventJob.perform_now(event_data_with_adapters)
+      end
     end
   end
 end
