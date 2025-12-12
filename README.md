@@ -85,9 +85,9 @@ Notes:
 
 ### Adding Custom Adapters
 
-The gem uses an Adapter Factory pattern that makes it easy to add new event destinations. To create a custom adapter:
+The gem uses an open Adapter Factory pattern that makes it easy to add new event destinations without modifying the gem internals. To create a custom adapter:
 
-1. **Create your adapter class** inheriting from `CentralEventLogger::Adapters::BaseAdapter`:
+1. **Create your adapter class** inheriting from `CentralEventLogger::Adapters::BaseAdapter` in `lib/central_event_logger/adapters/my_custom_adapter.rb` (filename must match the adapter name + `_adapter.rb`):
 
 ```ruby
 # lib/central_event_logger/adapters/my_custom_adapter.rb
@@ -99,11 +99,19 @@ module CentralEventLogger
       end
 
       # Required: Check if adapter is configured
+      # @param config [CentralEventLogger::Configuration]
       def self.available?(config)
         !config.my_custom_api_key.nil?
       end
 
+      # Required: Create instance from configuration
+      # @param config [CentralEventLogger::Configuration]
+      def self.from_config(config)
+        new(config.my_custom_api_key)
+      end
+
       # Required: Send event to destination
+      # @param event_data [Hash]
       def capture_event(event_data)
         # Transform event_data and send to your service
         # Return true on success, false on failure
@@ -112,7 +120,7 @@ module CentralEventLogger
   end
 end
 
-# Register the adapter
+# Required: Register the adapter
 CentralEventLogger::Adapters::AdapterRegistry.register(:my_custom, CentralEventLogger::Adapters::MyCustomAdapter)
 ```
 
@@ -127,15 +135,7 @@ def initialize
 end
 ```
 
-3. **Add factory method** in `lib/central_event_logger/adapters/adapter_factory.rb`:
-
-```ruby
-when :my_custom
-  require_relative "my_custom_adapter"
-  MyCustomAdapter.new(config.my_custom_api_key)
-```
-
-4. **Use your adapter**:
+3. **Use your adapter**:
 
 ```bash
 CENTRAL_EVENT_LOGGER_ADAPTERS=central_api,my_custom

@@ -131,4 +131,144 @@ RSpec.describe CentralEventLogger::Adapters::KlaviyoAdapter do
       adapter.capture_event(data)
     end
   end
+
+  context "specific event scenarios" do
+    let(:timestamp) { Time.utc(2025, 1, 1, 12, 0, 0) }
+    let(:common_customer_info) do
+      {
+        email: "sarah.mason@test.com",
+        first_name: "Sarah",
+        last_name: "Marson"
+      }
+    end
+    let(:common_properties) do
+      {
+        initiated_by: "user",
+        shop_domain: "my-store.myshopify.com",
+        changed_at: timestamp
+      }
+    end
+    let(:base_event_data) do
+      {
+        app_name: "Lexware Office",
+        customer_myshopify_domain: "my-store.myshopify.com",
+        customer_info: common_customer_info,
+        timestamp: timestamp,
+        event_type: "test_type", # Required by log_event, will appear in properties
+        payload: common_properties
+      }
+    end
+
+    it "verifies Install event payload" do
+      event_data = base_event_data.merge(event_name: "Install")
+
+      expect(client).to receive(:create_event) do |body|
+        attributes = body[:data][:attributes]
+
+        # Verify Profile
+        profile_attrs = attributes[:profile][:data][:attributes]
+        expect(profile_attrs).to include(
+          email: "sarah.mason@test.com",
+          first_name: "Sarah",
+          last_name: "Marson"
+        )
+
+        # Verify Metric
+        metric_attrs = attributes[:metric][:data][:attributes]
+        expect(metric_attrs[:name]).to eq("Install")
+
+        # Verify Properties
+        props = attributes[:properties]
+        expect(props).to include(
+          app_name: "Lexware Office",
+          changed_at: timestamp,
+          initiated_by: "user",
+          shop_domain: "my-store.myshopify.com"
+        )
+      end
+
+      adapter.capture_event(event_data)
+    end
+
+    it "verifies Activation event payload" do
+      event_data = base_event_data.merge(
+        event_name: "Activated",
+        payload: common_properties.merge(
+          app_plan: "Premium",
+          plan_value: 49.0
+        )
+      )
+
+      expect(client).to receive(:create_event) do |body|
+        attributes = body[:data][:attributes]
+        expect(attributes[:metric][:data][:attributes][:name]).to eq("Activated")
+
+        props = attributes[:properties]
+        expect(props).to include(
+          app_name: "Lexware Office",
+          app_plan: "Premium",
+          plan_value: 49.0,
+          changed_at: timestamp,
+          initiated_by: "user",
+          shop_domain: "my-store.myshopify.com"
+        )
+      end
+
+      adapter.capture_event(event_data)
+    end
+
+    it "verifies Uninstall event payload" do
+      event_data = base_event_data.merge(
+        event_name: "Uninstall",
+        payload: common_properties.merge(
+          app_plan: "Premium",
+          plan_value: 49.0
+        )
+      )
+
+      expect(client).to receive(:create_event) do |body|
+        attributes = body[:data][:attributes]
+        expect(attributes[:metric][:data][:attributes][:name]).to eq("Uninstall")
+
+        props = attributes[:properties]
+        expect(props).to include(
+          app_name: "Lexware Office",
+          app_plan: "Premium",
+          plan_value: 49.0,
+          changed_at: timestamp,
+          initiated_by: "user",
+          shop_domain: "my-store.myshopify.com"
+        )
+      end
+
+      adapter.capture_event(event_data)
+    end
+
+    it "verifies Connection Loss event payload" do
+      event_data = base_event_data.merge(
+        event_name: "Verbindung getrennt",
+        payload: common_properties.merge(
+          app_plan: "Premium",
+          plan_value: 49.0
+        )
+      )
+
+      expect(client).to receive(:create_event) do |body|
+        attributes = body[:data][:attributes]
+        expect(attributes[:metric][:data][:attributes][:name]).to eq("Verbindung getrennt")
+
+        props = attributes[:properties]
+        expect(props).to include(
+          app_name: "Lexware Office",
+          app_plan: "Premium",
+          plan_value: 49.0,
+          changed_at: timestamp,
+          initiated_by: "user",
+          shop_domain: "my-store.myshopify.com"
+        )
+      end
+
+      adapter.capture_event(event_data)
+    end
+  end
 end
