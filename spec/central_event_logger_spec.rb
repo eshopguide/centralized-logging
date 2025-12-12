@@ -67,21 +67,21 @@ RSpec.describe CentralEventLogger do
         event_type: "test_type",
         customer_myshopify_domain: "test.myshopify.com"
       )
-    end.to raise_error(ArgumentError, "missing keyword: :event_name")
+    end.to raise_error(ArgumentError, /missing keyword: .?event_name/)
 
     expect do
       CentralEventLogger.log_event(
         event_name: "test_event",
         customer_myshopify_domain: "test.myshopify.com"
       )
-    end.to raise_error(ArgumentError, "missing keyword: :event_type")
+    end.to raise_error(ArgumentError, /missing keyword: .?event_type/)
 
     expect do
       CentralEventLogger.log_event(
         event_name: "test_event",
         event_type: "test_type"
       )
-    end.to raise_error(ArgumentError, "missing keyword: :customer_myshopify_domain")
+    end.to raise_error(ArgumentError, /missing keyword: .?customer_myshopify_domain/)
   end
 
   context "with customer_info" do
@@ -141,7 +141,7 @@ RSpec.describe CentralEventLogger do
 
       it "returns false when api_base_url is nil" do
         config.adapters = [:central_api]
-        config.api_base_url = nil
+        allow(config).to receive(:api_base_url).and_return(nil)
 
         expect(CentralEventLogger.has_usable_adapter?).to be false
       end
@@ -181,7 +181,7 @@ RSpec.describe CentralEventLogger do
 
     context "with multiple adapters" do
       it "returns true if at least one adapter is usable" do
-        config.adapters = [:central_api, :posthog, :klaviyo]
+        config.adapters = %i[central_api posthog klaviyo]
         config.api_base_url = nil
         config.posthog_project_api_key = "ph_test_key"
         config.klaviyo_api_key = nil
@@ -190,8 +190,8 @@ RSpec.describe CentralEventLogger do
       end
 
       it "returns false if no adapters are usable" do
-        config.adapters = [:central_api, :posthog, :klaviyo]
-        config.api_base_url = nil
+        config.adapters = %i[central_api posthog klaviyo]
+        allow(config).to receive(:api_base_url).and_return(nil)
         config.posthog_project_api_key = nil
         config.klaviyo_api_key = nil
 

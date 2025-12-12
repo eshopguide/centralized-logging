@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require "klaviyo-api-sdk"
 require_relative "base_adapter"
 
 module CentralEventLogger
