@@ -2,7 +2,7 @@
 
 require "rails_helper"
 require "central_event_logger/event_job"
-require "central_event_logger/api_client"
+require "central_event_logger/adapters/central_api_adapter"
 require "central_event_logger/adapters/adapter_factory"
 
 RSpec.describe CentralEventLogger::EventJob, type: :job do
@@ -21,7 +21,7 @@ RSpec.describe CentralEventLogger::EventJob, type: :job do
   let(:configuration) do
     instance_double(CentralEventLogger::Configuration, job_queue_name: "test_queue", adapters: [:central_api])
   end
-  let(:adapter) { instance_double(CentralEventLogger::ApiClient, capture_event: { "status" => "success" }) }
+  let(:adapter) { instance_double(CentralEventLogger::Adapters::CentralApiAdapter, capture_event: { "status" => "success" }) }
   let(:logger) { instance_double("Logger", error: nil) }
   let(:error_reporter) { instance_double("ActiveSupport::ErrorReporter", report: nil) }
 
@@ -43,7 +43,7 @@ RSpec.describe CentralEventLogger::EventJob, type: :job do
 
     it "handles multiple adapters" do
       allow(configuration).to receive(:adapters).and_return([:central_api, :posthog])
-      adapter1 = instance_double(CentralEventLogger::ApiClient, capture_event: true)
+      adapter1 = instance_double(CentralEventLogger::Adapters::CentralApiAdapter, capture_event: true)
       adapter2 = instance_double(CentralEventLogger::Adapters::PostHogAdapter, capture_event: true)
 
       expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)

@@ -1,0 +1,10 @@
+module CentralEventLogger
+  module Adapters
+    class CentralApiAdapter < BaseAdapter
+      @api_key: String
+      @api_secret: String
+      @base_url: String
+    end
+  end
+end
+

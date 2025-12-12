@@ -27,6 +27,13 @@ module CentralEventLogger
         !config.posthog_project_api_key.nil?
       end
 
+      # Factory method to create an adapter instance from configuration
+      # @param config [CentralEventLogger::Configuration] The configuration object
+      # @return [PostHogAdapter] An instance of the adapter
+      def self.from_config(config)
+        new(config.posthog_api_host, config.posthog_project_api_key)
+      end
+
       # event_data keys come from CentralEventLogger.log_event
       def capture_event(event_data)
         distinct_id = event_data[:customer_myshopify_domain] || event_data[:external_id] || event_data[:customer_info]&.dig(:id) || "unknown"

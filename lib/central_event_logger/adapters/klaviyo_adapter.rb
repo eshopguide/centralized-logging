@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "klaviyo-api-sdk"
 require_relative "base_adapter"
 
@@ -21,6 +22,13 @@ module CentralEventLogger
       # @return [Boolean] true if Klaviyo API key is configured
       def self.available?(config)
         !config.klaviyo_api_key.nil?
+      end
+
+      # Factory method to create an adapter instance from configuration
+      # @param config [CentralEventLogger::Configuration] The configuration object
+      # @return [KlaviyoAdapter] An instance of the adapter
+      def self.from_config(config)
+        new(config.klaviyo_api_key)
       end
 
       # Capture an event and send it to Klaviyo

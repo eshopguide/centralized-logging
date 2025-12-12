@@ -9,6 +9,7 @@ module CentralEventLogger
       # @param config [CentralEventLogger::Configuration] The configuration object
       # @return [BaseAdapter, nil] The configured adapter instance or nil if unavailable
       def self.build(adapter_name, config)
+        load_adapter(adapter_name)
         adapter_class = AdapterRegistry.get(adapter_name)
 
         unless adapter_class
@@ -18,20 +19,15 @@ module CentralEventLogger
 
         return nil unless adapter_class.available?(config)
 
-        case adapter_name
-        when :central_api
-          require_relative "../api_client"
-          ApiClient.new(config.api_base_url, config.api_key, config.api_secret)
-        when :posthog
-          require_relative "posthog_adapter"
-          PostHogAdapter.new(config.posthog_api_host, config.posthog_project_api_key)
-        when :klaviyo
-          require_relative "klaviyo_adapter"
-          KlaviyoAdapter.new(config.klaviyo_api_key)
-        else
-          Rails.logger.warn("No factory method defined for adapter: #{adapter_name}") if defined?(Rails)
-          nil
-        end
+        adapter_class.from_config(config)
+      end
+
+      # Load the adapter file based on the adapter name
+      # @param adapter_name [Symbol] The name of the adapter
+      def self.load_adapter(adapter_name)
+        require_relative "#{adapter_name}_adapter"
+      rescue LoadError => e
+        Rails.logger.warn("Could not load adapter #{adapter_name}: #{e.message}") if defined?(Rails)
       end
     end
   end
