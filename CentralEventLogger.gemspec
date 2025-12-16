@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "klaviyo-api-sdk", "~> 15.0"
   spec.add_dependency "pg", "~> 1.1"
   spec.add_dependency "posthog-ruby", ">= 3.1"
   spec.add_dependency "rails", "~> 7.0"

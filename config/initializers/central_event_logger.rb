@@ -10,15 +10,22 @@ CentralEventLogger.configure do |config|
   config.api_key = ENV["CENTRAL_EVENT_LOGGER_API_KEY"]
   config.api_secret = ENV["CENTRAL_EVENT_LOGGER_API_SECRET"]
 
-  # Adapters: set which sinks to send events to. Example: [:central_api, :posthog]
+  # Adapters: set which sinks to send events to. 
+  # Available adapters: [:central_api, :posthog, :klaviyo]
+  # Example: [:central_api, :posthog, :klaviyo]
   if ENV["CENTRAL_EVENT_LOGGER_ADAPTERS"]
-    # comma separated list like: central_api,posthog
+    # comma separated list like: central_api,posthog,klaviyo
     config.adapters = ENV["CENTRAL_EVENT_LOGGER_ADAPTERS"].split(/\s*,\s*/).map { |s| s.strip.downcase.to_sym }
   end
 
-  # PostHog settings (public/event endpoints). Host defaults to PostHog US ingest.
+  # PostHog settings (public/event endpoints). Host defaults to PostHog EU ingest.
   config.posthog_api_host = ENV["POSTHOG_API_HOST"] if ENV["POSTHOG_API_HOST"]
   config.posthog_project_api_key = ENV["POSTHOG_PROJECT_API_KEY"] if ENV["POSTHOG_PROJECT_API_KEY"]
+
+  # Klaviyo settings
+  # Required: Klaviyo Private API Key
+  # Get yours at: https://www.klaviyo.com/settings/account/api-keys
+  config.klaviyo_api_key = ENV["KLAVIYO_API_KEY"] if ENV["KLAVIYO_API_KEY"]
 
   # if different in this app
   # config.shop_attribute_mappings = {

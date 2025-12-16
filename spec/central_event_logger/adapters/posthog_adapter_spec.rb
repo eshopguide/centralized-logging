@@ -1,14 +1,28 @@
 # frozen_string_literal: true
 
 require "rails_helper"
-require "central_event_logger/posthog_adapter"
+require "central_event_logger/adapters/posthog_adapter"
 
-RSpec.describe CentralEventLogger::PostHogAdapter do
+RSpec.describe CentralEventLogger::Adapters::PostHogAdapter do
   let(:api_host) { "https://us.i.posthog.com" }
   let(:project_api_key) { "ph_test_key" }
   let(:client) { double("PostHog::Client", capture: true, flush: true) }
 
   subject(:adapter) { described_class.new(api_host, project_api_key, client: client) }
+
+  describe ".available?" do
+    let(:config) { double("config") }
+
+    it "returns true when posthog_project_api_key is configured" do
+      allow(config).to receive(:posthog_project_api_key).and_return("test_key")
+      expect(described_class.available?(config)).to be true
+    end
+
+    it "returns false when posthog_project_api_key is nil" do
+      allow(config).to receive(:posthog_project_api_key).and_return(nil)
+      expect(described_class.available?(config)).to be false
+    end
+  end
 
   describe "#capture_event" do
     let(:timestamp) { Time.utc(2025, 1, 2, 3, 4, 5) }
@@ -71,6 +85,25 @@ RSpec.describe CentralEventLogger::PostHogAdapter do
       expect(client).to receive(:flush)
 
       adapter.capture_event(data)
+    end
+
+    context "when whitelisting is configured" do
+      before do
+        adapter.event_whitelist = %w[allowed_event]
+      end
+
+      it "captures whitelisted events" do
+        data = event_data.merge(event_name: "allowed_event")
+        expect(client).to receive(:capture)
+        expect(client).to receive(:flush)
+        expect(adapter.capture_event(data)).to be true
+      end
+
+      it "skips non-whitelisted events without error" do
+        data = event_data.merge(event_name: "blocked_event")
+        expect(client).not_to receive(:capture)
+        expect(adapter.capture_event(data)).to be true
+      end
     end
   end
 end
