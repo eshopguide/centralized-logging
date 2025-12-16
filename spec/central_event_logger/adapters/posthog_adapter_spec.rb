@@ -86,5 +86,24 @@ RSpec.describe CentralEventLogger::Adapters::PostHogAdapter do
 
       adapter.capture_event(data)
     end
+
+    context "when whitelisting is configured" do
+      before do
+        adapter.event_whitelist = %w[allowed_event]
+      end
+
+      it "captures whitelisted events" do
+        data = event_data.merge(event_name: "allowed_event")
+        expect(client).to receive(:capture)
+        expect(client).to receive(:flush)
+        expect(adapter.capture_event(data)).to be true
+      end
+
+      it "skips non-whitelisted events without error" do
+        data = event_data.merge(event_name: "blocked_event")
+        expect(client).not_to receive(:capture)
+        expect(adapter.capture_event(data)).to be true
+      end
+    end
   end
 end

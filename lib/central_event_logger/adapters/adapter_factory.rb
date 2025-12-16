@@ -19,7 +19,11 @@ module CentralEventLogger
 
         return nil unless adapter_class.available?(config)
 
-        adapter_class.from_config(config)
+        instance = adapter_class.from_config(config)
+        if instance.respond_to?(:event_whitelist=)
+          instance.event_whitelist = config.adapter_event_whitelists[adapter_name]
+        end
+        instance
       end
 
       # Load the adapter file based on the adapter name

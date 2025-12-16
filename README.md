@@ -83,6 +83,30 @@ Notes:
 - The enqueue guard checks that at least one of the provided adapters is usable.
 - If `adapters:` is omitted, the configured adapters (e.g., `central_api`) are used.
 
+### Event Whitelisting
+
+You can configure whitelists for each adapter to only process specific events. This is useful when you want to send all events to one adapter (e.g., `central_api`) but only specific events to another (e.g., `klaviyo`).
+
+In your configuration initializer:
+
+```ruby
+# config/initializers/central_event_logger.rb
+CentralEventLogger.configure do |config|
+  # ... other config ...
+
+  # Configure event whitelists per adapter
+  config.adapter_event_whitelists = {
+    # Only send these specific events to Klaviyo
+    klaviyo: ["app_installed", "app_uninstalled", "conversion", "connection_lost"],
+    
+    # Send only 'page_view' to PostHog
+    posthog: ["page_view"]
+  }
+end
+```
+
+If an adapter is not present in the `adapter_event_whitelists` hash (or if the list is empty/nil), it will process **all** events by default.
+
 ### Adding Custom Adapters
 
 The gem uses an open Adapter Factory pattern that makes it easy to add new event destinations without modifying the gem internals. To create a custom adapter:

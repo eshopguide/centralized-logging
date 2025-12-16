@@ -4,7 +4,7 @@ module CentralEventLogger
   # Configuration class for CentralEventLogger
   class Configuration
     attr_accessor :app_name, :job_queue_name, :api_base_url, :api_key, :api_secret, :shop_attribute_mappings,
-                  :adapters, :posthog_api_host, :posthog_project_api_key, :klaviyo_api_key
+                  :adapters, :posthog_api_host, :posthog_project_api_key, :klaviyo_api_key, :adapter_event_whitelists
 
     def initialize
       @shop_attribute_mappings = {
@@ -14,6 +14,7 @@ module CentralEventLogger
         owner: :shop_owner
       }
       @adapters = [:central_api]
+      @adapter_event_whitelists = {}
       @posthog_api_host = ENV["POSTHOG_API_HOST"] || "https://eu.posthog.com"
       @posthog_project_api_key = ENV["POSTHOG_PROJECT_API_KEY"]
       @klaviyo_api_key = ENV["KLAVIYO_API_KEY"]

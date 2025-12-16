@@ -32,6 +32,8 @@ module CentralEventLogger
       # @param event_data [Hash] The event data to capture
       # @return [Hash] The API response
       def capture_event(event_data)
+        return true unless whitelisted?(event_data[:event_name])
+
         create_event(event_data)
       end
 
@@ -58,4 +60,3 @@ end
 
 # Register the adapter
 CentralEventLogger::Adapters::AdapterRegistry.register(:central_api, CentralEventLogger::Adapters::CentralApiAdapter)
-

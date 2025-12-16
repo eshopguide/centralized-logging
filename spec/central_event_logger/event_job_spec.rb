@@ -21,7 +21,9 @@ RSpec.describe CentralEventLogger::EventJob, type: :job do
   let(:configuration) do
     instance_double(CentralEventLogger::Configuration, job_queue_name: "test_queue", adapters: [:central_api])
   end
-  let(:adapter) { instance_double(CentralEventLogger::Adapters::CentralApiAdapter, capture_event: { "status" => "success" }) }
+  let(:adapter) do
+    instance_double(CentralEventLogger::Adapters::CentralApiAdapter, capture_event: { "status" => "success" })
+  end
   let(:logger) { instance_double("Logger", error: nil) }
   let(:error_reporter) { instance_double("ActiveSupport::ErrorReporter", report: nil) }
 
@@ -42,7 +44,7 @@ RSpec.describe CentralEventLogger::EventJob, type: :job do
     end
 
     it "handles multiple adapters" do
-      allow(configuration).to receive(:adapters).and_return([:central_api, :posthog])
+      allow(configuration).to receive(:adapters).and_return(%i[central_api posthog])
       adapter1 = instance_double(CentralEventLogger::Adapters::CentralApiAdapter, capture_event: true)
       adapter2 = instance_double(CentralEventLogger::Adapters::PostHogAdapter, capture_event: true)
 
@@ -60,7 +62,7 @@ RSpec.describe CentralEventLogger::EventJob, type: :job do
     end
 
     it "skips adapters that return nil from factory" do
-      allow(configuration).to receive(:adapters).and_return([:central_api, :unknown])
+      allow(configuration).to receive(:adapters).and_return(%i[central_api unknown])
 
       expect(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
         .with(:central_api, configuration)
@@ -102,6 +104,22 @@ RSpec.describe CentralEventLogger::EventJob, type: :job do
         expect(adapter2).to receive(:capture_event).with(event_data_with_adapters)
 
         CentralEventLogger::EventJob.perform_now(event_data_with_adapters)
+      end
+    end
+
+    context "when whitelisting is configured" do
+      before do
+        allow(CentralEventLogger::Adapters::AdapterFactory).to receive(:build)
+          .with(:central_api, configuration)
+          .and_return(adapter)
+      end
+
+      it "calls capture_event when event is whitelisted" do
+        allow(adapter).to receive(:event_whitelist).and_return(["test_event"])
+        allow(adapter).to receive(:whitelisted?).with("test_event").and_return(true)
+
+        expect(adapter).to receive(:capture_event).with(event_data)
+        CentralEventLogger::EventJob.perform_now(event_data)
       end
     end
   end

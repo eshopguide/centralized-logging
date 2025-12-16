@@ -36,6 +36,8 @@ module CentralEventLogger
 
       # event_data keys come from CentralEventLogger.log_event
       def capture_event(event_data)
+        return true unless whitelisted?(event_data[:event_name])
+
         distinct_id = event_data[:customer_myshopify_domain] || event_data[:external_id] || event_data[:customer_info]&.dig(:id) || "unknown"
 
         # Spread the customer_info hash into properties with "customer_" prefix

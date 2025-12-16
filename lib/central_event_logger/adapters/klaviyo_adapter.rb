@@ -11,7 +11,7 @@ module CentralEventLogger
       EVENT_NAME_MAPPING = {
         "app_installed" => "Install",
         "app_uninstalled" => "Uninstall",
-        "user_acquisition" => "Activated",
+        "conversion" => "Activated",
         "connection_lost" => "Connection Lost"
       }.freeze
 
@@ -48,6 +48,8 @@ module CentralEventLogger
       # @param event_data [Hash] The event data to capture
       # @return [Boolean] true if the event was successfully captured
       def capture_event(event_data)
+        return true unless whitelisted?(event_data[:event_name])
+
         # Extract email from customer_info - required for Klaviyo
         email = event_data[:customer_info]&.dig(:email)
 

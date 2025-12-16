@@ -5,6 +5,8 @@ module CentralEventLogger
     # Base class for all event logging adapters
     # Provides common interface that all adapters must implement
     class BaseAdapter
+      attr_accessor :event_whitelist
+
       # Check if the adapter is available based on configuration
       # @param config [CentralEventLogger::Configuration] The configuration object
       # @return [Boolean] true if the adapter has all required configuration
@@ -24,6 +26,15 @@ module CentralEventLogger
       # @return [BaseAdapter] An instance of the adapter
       def self.from_config(config)
         raise NotImplementedError, "#{name} must implement .from_config(config)"
+      end
+
+      # Check if an event is whitelisted
+      # @param event_name [String] The name of the event
+      # @return [Boolean] true if the event is whitelisted or no whitelist is configured
+      def whitelisted?(event_name)
+        return true if event_whitelist.nil? || event_whitelist.empty?
+
+        event_whitelist.include?(event_name)
       end
     end
   end
