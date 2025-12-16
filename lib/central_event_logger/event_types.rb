@@ -10,6 +10,7 @@ module CentralEventLogger
     FEEDBACK         = "feedback"
     MARKETING        = "marketing"
     PERFORMANCE      = "performance"
-    SETTINGS_CHANGE = "settings_change"
+    SETTINGS_CHANGE  = "settings_change"
+    STATISTICS       = "statistics"
   end
 end

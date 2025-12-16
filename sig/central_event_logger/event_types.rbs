@@ -9,5 +9,6 @@ module CentralEventLogger
     SETTINGS_CHANGE: string
     SUPPORT: string
     USER_ACQUISITION: string
+    STATISTICS: string
   end
 end

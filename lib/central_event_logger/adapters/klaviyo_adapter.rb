@@ -8,11 +8,21 @@ module CentralEventLogger
     # Klaviyo adapter using the official klaviyo-api-sdk gem
     # Docs: https://github.com/klaviyo/klaviyo-api-ruby
     class KlaviyoAdapter < BaseAdapter
+      EVENT_NAME_MAPPING = {
+        "app_installed" => "Install",
+        "app_uninstalled" => "Uninstall",
+        "user_acquisition" => "Activated",
+        "connection_lost" => "Connection Lost"
+      }.freeze
+
       def initialize(api_key, client: nil)
         @api_key = api_key
         # Configure Klaviyo API globally
         KlaviyoAPI.configure do |config|
           config.api_key["Klaviyo-API-Key"] = @api_key
+          config.api_key_prefix["Klaviyo-API-Key"] = "Klaviyo-API-Key"
+          config.verify_ssl = false if Rails.env.development?
+          config.verify_ssl_host = false if Rails.env.development?
         end
         @client = client
       end
@@ -45,16 +55,35 @@ module CentralEventLogger
           return false
         end
 
+        # Map internal names to display names
+        metric_name = map_event_name(event_data[:event_name])
+
         # Build profile properties from customer_info
         profile_properties = build_profile_properties(event_data[:customer_info])
 
-        # Build event properties
-        event_properties = {
+        # Build base properties required for all events
+        base_properties = {
           app_name: event_data[:app_name],
-          event_type: event_data[:event_type],
-          event_value: event_data[:event_value],
-          customer_myshopify_domain: event_data[:customer_myshopify_domain]
-        }.compact.merge(event_data[:payload] || {})
+          changed_at: format_timestamp(event_data[:timestamp]),
+          initiated_by: "user",
+          shop_domain: event_data[:customer_myshopify_domain]
+        }
+
+        # Merge payload, filtering out implementation-specific fields if needed
+        # and adding event-specific properties
+        payload = event_data[:payload] || {}
+
+        # Filter payload based on metric name for specific scenarios if needed
+        filtered_payload = case metric_name
+                           when "Activated", "Uninstall", "Connection Lost"
+                             payload.slice(:app_plan, :plan_value)
+                           else
+                             # For Install and others, we might not want extra payload fields unless specified
+                             # But based on example 1, Install just has base properties
+                             {}
+                           end
+
+        event_properties = base_properties.merge(filtered_payload)
 
         # Build the event request body according to Klaviyo API spec
         body = {
@@ -74,7 +103,7 @@ module CentralEventLogger
                 data: {
                   type: "metric",
                   attributes: {
-                    name: event_data[:event_name]
+                    name: metric_name
                   }
                 }
               },
@@ -99,6 +128,14 @@ module CentralEventLogger
 
       private
 
+      def map_event_name(internal_name)
+        EVENT_NAME_MAPPING[internal_name] || internal_name
+      end
+
+      def map_app_name(internal_name)
+        APP_NAME_MAPPING[internal_name] || internal_name
+      end
+
       # Build profile properties from customer_info hash
       # Maps common fields and includes custom properties
       def build_profile_properties(customer_info)
@@ -106,18 +143,21 @@ module CentralEventLogger
 
         properties = {}
 
+        # Handle splitting owner/shop_owner if first/last name missing
+        first_name = customer_info[:first_name]
+        last_name = customer_info[:last_name]
+
+        if (first_name.nil? || last_name.nil?) && (owner = customer_info[:owner] || customer_info[:shop_owner])
+          names = owner.split(" ")
+          first_name ||= names.first
+          last_name ||= names.last if names.length > 1
+        end
+
         # Map standard Klaviyo profile fields
-        properties[:first_name] = customer_info[:first_name] if customer_info[:first_name]
-        properties[:last_name] = customer_info[:last_name] if customer_info[:last_name]
+        properties[:first_name] = first_name if first_name
+        properties[:last_name] = last_name if last_name
         properties[:phone_number] = customer_info[:phone] if customer_info[:phone]
         properties[:external_id] = customer_info[:id] if customer_info[:id]
-
-        # Add any other custom properties
-        customer_info.each do |key, value|
-          next if %i[email first_name last_name phone id].include?(key)
-
-          properties[key] = value
-        end
 
         properties.compact
       end
