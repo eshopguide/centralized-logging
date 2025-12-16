@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    central_event_logger (0.2.2)
+    central_event_logger (0.3)
       klaviyo-api-sdk (~> 15.0)
       pg (~> 1.1)
       posthog-ruby (>= 3.1)
