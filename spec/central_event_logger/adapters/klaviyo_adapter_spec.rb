@@ -85,7 +85,7 @@ RSpec.describe CentralEventLogger::Adapters::KlaviyoAdapter do
     it "returns false and logs warning when email is missing" do
       data = event_data.merge(customer_info: { first_name: "John" })
 
-      expect(Rails.logger).to receive(:warn).with(/Missing email/)
+      expect(Rails.error).to receive(:report).with(/Missing email/)
       result = adapter.capture_event(data)
       expect(result).to be false
     end
@@ -93,7 +93,7 @@ RSpec.describe CentralEventLogger::Adapters::KlaviyoAdapter do
     it "returns false when customer_info is nil" do
       data = event_data.merge(customer_info: nil)
 
-      expect(Rails.logger).to receive(:warn).with(/Missing email/)
+      expect(Rails.error).to receive(:report).with(/Missing email/)
       result = adapter.capture_event(data)
       expect(result).to be false
     end
@@ -193,9 +193,9 @@ RSpec.describe CentralEventLogger::Adapters::KlaviyoAdapter do
       adapter.capture_event(event_data)
     end
 
-    it "verifies Activation event mapping from user_acquisition" do
+    it "verifies Activation event mapping from conversion" do
       event_data = base_event_data.merge(
-        event_name: "user_acquisition",
+        event_name: "conversion",
         payload: common_properties.merge(
           app_plan: "Premium",
           plan_value: 49.0
