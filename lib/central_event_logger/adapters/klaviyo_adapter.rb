@@ -21,8 +21,11 @@ module CentralEventLogger
         KlaviyoAPI.configure do |config|
           config.api_key["Klaviyo-API-Key"] = @api_key
           config.api_key_prefix["Klaviyo-API-Key"] = "Klaviyo-API-Key"
-          config.verify_ssl = false if Rails.env.development?
-          config.verify_ssl_host = false if Rails.env.development?
+          if Rails.env.development?
+            config.debugging = true
+            config.verify_ssl = false
+            config.verify_ssl_host = false
+          end
         end
         @client = client
       end
