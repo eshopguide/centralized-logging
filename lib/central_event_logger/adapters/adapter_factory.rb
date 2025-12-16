@@ -13,7 +13,7 @@ module CentralEventLogger
         adapter_class = AdapterRegistry.get(adapter_name)
 
         unless adapter_class
-          Rails.logger.warn("Unknown CentralEventLogger adapter: #{adapter_name}") if defined?(Rails)
+          Rails.error.report("Unknown CentralEventLogger adapter: #{adapter_name}") if defined?(Rails)
           return nil
         end
 
@@ -31,7 +31,7 @@ module CentralEventLogger
       def self.load_adapter(adapter_name)
         require_relative "#{adapter_name}_adapter"
       rescue LoadError => e
-        Rails.logger.warn("Could not load adapter #{adapter_name}: #{e.message}") if defined?(Rails)
+        Rails.error.report("Could not load adapter #{adapter_name}: #{e.message}") if defined?(Rails)
       end
     end
   end

@@ -55,7 +55,7 @@ module CentralEventLogger
 
         unless email
           if defined?(Rails)
-            Rails.logger.warn("KlaviyoAdapter: Missing email in customer_info, skipping event #{event_data[:event_name]}")
+            Rails.error.report("KlaviyoAdapter: Missing email in customer_info, skipping event #{event_data[:event_name]}")
           end
           return false
         end
