@@ -132,10 +132,6 @@ module CentralEventLogger
         EVENT_NAME_MAPPING[internal_name] || internal_name
       end
 
-      def map_app_name(internal_name)
-        APP_NAME_MAPPING[internal_name] || internal_name
-      end
-
       # Build profile properties from customer_info hash
       # Maps common fields and includes custom properties
       def build_profile_properties(customer_info)
@@ -143,7 +139,18 @@ module CentralEventLogger
 
         properties = {}
 
-        # Handle splitting owner/shop_owner if first/last name missing
+        first_name, last_name = extract_names(customer_info)
+
+        # Map standard Klaviyo profile fields
+        properties[:first_name] = first_name if first_name
+        properties[:last_name] = last_name if last_name
+        properties[:phone_number] = customer_info[:phone] if customer_info[:phone]
+        properties[:external_id] = customer_info[:id] if customer_info[:id]
+
+        properties.compact
+      end
+
+      def extract_names(customer_info)
         first_name = customer_info[:first_name]
         last_name = customer_info[:last_name]
 
@@ -153,13 +160,7 @@ module CentralEventLogger
           last_name ||= names.last if names.length > 1
         end
 
-        # Map standard Klaviyo profile fields
-        properties[:first_name] = first_name if first_name
-        properties[:last_name] = last_name if last_name
-        properties[:phone_number] = customer_info[:phone] if customer_info[:phone]
-        properties[:external_id] = customer_info[:id] if customer_info[:id]
-
-        properties.compact
+        [first_name, last_name]
       end
 
       # Format timestamp for Klaviyo API (ISO 8601)
