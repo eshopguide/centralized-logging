@@ -11,7 +11,7 @@ module CentralEventLogger
       EVENT_NAME_MAPPING = {
         "app_installed" => "Install",
         "app_uninstalled" => "Uninstall",
-        "conversion" => "Activated",
+        "plan_activation" => "Activated",
         "connection_lost" => "Connection Lost"
       }.freeze
 
@@ -77,18 +77,7 @@ module CentralEventLogger
         # Merge payload, filtering out implementation-specific fields if needed
         # and adding event-specific properties
         payload = event_data[:payload] || {}
-
-        # Filter payload based on metric name for specific scenarios if needed
-        filtered_payload = case metric_name
-                           when "Activated", "Uninstall", "Connection Lost"
-                             payload.slice(:app_plan, :plan_value)
-                           else
-                             # For Install and others, we might not want extra payload fields unless specified
-                             # But based on example 1, Install just has base properties
-                             {}
-                           end
-
-        event_properties = base_properties.merge(filtered_payload)
+        payload[:event_value] = event_data.dig(:event_value)
 
         # Build the event request body according to Klaviyo API spec
         body = {
@@ -112,7 +101,7 @@ module CentralEventLogger
                   }
                 }
               },
-              properties: event_properties,
+              properties: base_properties.merge(payload),
               time: format_timestamp(event_data[:timestamp])
             }
           }

@@ -195,7 +195,7 @@ RSpec.describe CentralEventLogger::Adapters::KlaviyoAdapter do
 
     it "verifies Activation event mapping from conversion" do
       event_data = base_event_data.merge(
-        event_name: "conversion",
+        event_name: "plan_activation",
         payload: common_properties.merge(
           app_plan: "Premium",
           plan_value: 49.0
